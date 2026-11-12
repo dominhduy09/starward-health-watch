@@ -145,3 +145,15 @@
 }
 @keyframes pulse-dot { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
 @utility live-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+.copilot-md h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-primary); margin: 0.75rem 0 0.35rem; font-family: var(--font-mono); }
+.copilot-md h3:first-child { margin-top: 0; }
+.copilot-md p { margin: 0.3rem 0; }
+.copilot-md ul { margin: 0.25rem 0; padding-left: 1.1rem; list-style: disc; }
+.copilot-md ul.contains-task-list { list-style: none; padding-left: 0; }
+.copilot-md li { margin: 0.3rem 0; }
+.copilot-md strong { color: var(--color-foreground); font-weight: 600; }
+.copilot-md code { font-family: var(--font-mono); font-size: 0.8em; }
+.copilot-md li.task-list-item { display: flex; align-items: flex-start; gap: 0.25rem; }
+.copilot-md li.task-list-item > button { margin-top: 0.2rem; flex-shrink: 0; }
+.copilot-md li.task-list-item > p { margin: 0; }

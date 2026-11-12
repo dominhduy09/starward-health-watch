@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClipboardPlus } from "lucide-react";
+import { ClipboardPlus, Stethoscope } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -9,11 +9,18 @@ import type { SymptomLog } from "@/lib/triage";
 
 const FLAGS = [["headache", "Headache"], ["dizziness", "Dizziness / vertigo"], ["visualFlashes", "Visual flashes (phosphenes)"], ["nausea", "Nausea"]] as const;
 
-export function SymptomDrawer({ history, onSubmit }: { history: SymptomLog[]; onSubmit: (l: SymptomLog) => void }) {
+export function SymptomDrawer({ history, onSubmit, onAsk }: { history: SymptomLog[]; onSubmit: (l: SymptomLog) => void; onAsk: (prompt: string) => void }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ headache: false, dizziness: false, visualFlashes: false, nausea: false, sleepQuality: 7, mood: 7, notes: "" });
   const submit = () => {
     onSubmit({ ...f, id: crypto.randomUUID(), at: new Date().toISOString().slice(11, 16) + " UTC" });
+    setOpen(false);
+  };
+  const askAi = () => {
+    const syms = FLAGS.filter(([k]) => f[k]).map(([, l]) => l.toLowerCase());
+    const prompt = `Self-assessment: ${syms.length ? `I am experiencing ${syms.join(", ")}.` : "No specific symptoms flagged."} Sleep quality ${f.sleepQuality}/10, mood ${f.mood}/10.${f.notes.trim() ? ` Notes: ${f.notes.trim()}` : ""} What is the likely cause given my vitals, and what should I do?`;
+    onSubmit({ ...f, id: crypto.randomUUID(), at: new Date().toISOString().slice(11, 16) + " UTC" });
+    onAsk(prompt);
     setOpen(false);
   };
   return (
@@ -39,7 +46,10 @@ export function SymptomDrawer({ history, onSubmit }: { history: SymptomLog[]; on
             </div>
           ))}
           <Textarea placeholder="Notes for flight surgeon…" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} />
-          <Button className="w-full" onClick={submit}>Submit Assessment</Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button onClick={submit}>Submit Assessment</Button>
+            <Button variant="outline" className="gap-2" onClick={askAi}><Stethoscope className="size-4" />Ask AI Copilot</Button>
+          </div>
           {history.length > 0 && (
             <div>
               <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Recent Logs</h4>

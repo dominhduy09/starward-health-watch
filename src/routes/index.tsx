@@ -5,6 +5,7 @@ import { VitalCards } from "@/components/astra/VitalCards";
 import { TelemetryChart } from "@/components/astra/TelemetryChart";
 import { TriagePanel } from "@/components/astra/TriagePanel";
 import { SymptomDrawer } from "@/components/astra/SymptomDrawer";
+import { CopilotChat } from "@/components/astra/CopilotChat";
 import { type Point, CREW, SCENARIOS, jitter, rng, series, vitalsFor, type CrewId, type ScenarioId } from "@/lib/telemetry";
 import { triage, type SymptomLog } from "@/lib/triage";
 
@@ -29,6 +30,7 @@ function Dashboard() {
   const [range, setRange] = useState<"24h" | "30d">("24h");
   const [tick, setTick] = useState(0);
   const [logs, setLogs] = useState<Record<CrewId, SymptomLog[]>>({ vance: [], chen: [], sato: [] });
+  const [pending, setPending] = useState<string | null>(null);
   const [done, setDone] = useState<Set<string>>(new Set());
 
   const crew = CREW.find((c) => c.id === crewId)!;
@@ -66,9 +68,15 @@ function Dashboard() {
             <TelemetryChart data={data} range={range} onRange={setRange} />
           </div>
           <div className="space-y-4">
-            <SymptomDrawer history={logs[crewId]} onSubmit={(l) => setLogs((p) => ({ ...p, [crewId]: [l, ...p[crewId]] }))} />
+            <SymptomDrawer history={logs[crewId]} onSubmit={(l) => setLogs((p) => ({ ...p, [crewId]: [l, ...p[crewId]] }))} onAsk={setPending} />
             <TriagePanel level={t.level} risks={t.risks} actions={t.actions} done={done} scenarioNote={note}
-              onToggle={(id) => setDone((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; })} />
+              onToggle={(id) => setDone((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; })}>
+              <CopilotChat pending={pending} onPendingDone={() => setPending(null)} context={{
+                crew: crew.name, role: crew.role, scenario: SCENARIOS.find((s) => s.id === scenario)!.label, status: t.level,
+                vitals: { hr: v.hr, hrv: v.hrv, spo2: v.spo2, temp: v.temp, radiation: v.radiation, missionLimit: crew.missionLimit, bone: v.bone, readiness: t.score, sleepHours: v.sleepHours, stress: Math.round(v.stress), hydration: Math.round(v.hydration) },
+                risks: t.risks.map((r) => r.title),
+              }} />
+            </TriagePanel>
           </div>
         </div>
       </main>

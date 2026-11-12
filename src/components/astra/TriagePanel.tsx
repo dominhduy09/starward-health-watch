@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const levelSev = { NOMINAL: "nominal", CAUTION: "caution", CRITICAL: "critical" } as const;
 
-export function TriagePanel({ level, risks, actions, done, onToggle, scenarioNote }: { level: Level; risks: Risk[]; actions: Action[]; done: Set<string>; onToggle: (id: string) => void; scenarioNote: string }) {
+export function TriagePanel({ level, risks, actions, done, onToggle, scenarioNote, children }: { level: Level; risks: Risk[]; actions: Action[]; done: Set<string>; onToggle: (id: string) => void; scenarioNote: string; children?: React.ReactNode }) {
   const sev = levelSev[level];
   const Icon = level === "NOMINAL" ? CheckCircle2 : level === "CAUTION" ? AlertTriangle : ShieldAlert;
   const completed = actions.filter((a) => done.has(a.id)).length;
@@ -42,6 +42,7 @@ export function TriagePanel({ level, risks, actions, done, onToggle, scenarioNot
             </label>
           </li>))}</ul>
       </div>
+      {children}
     </div>
   );
 }
