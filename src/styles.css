@@ -146,6 +146,7 @@
 @keyframes pulse-dot { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
 @utility live-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
 
+.copilot-md { overflow-wrap: break-word; word-break: break-word; }
 .copilot-md h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-primary); margin: 0.75rem 0 0.35rem; font-family: var(--font-mono); }
 .copilot-md h3:first-child { margin-top: 0; }
 .copilot-md p { margin: 0.3rem 0; }
@@ -159,3 +160,6 @@
 .copilot-md li.task-list-item > p { margin: 0; }
 @keyframes radiation-flash { 0%,100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 24px -2px var(--color-critical); border-color: var(--color-critical); } }
 .radiation-flash { animation: radiation-flash 1.2s ease-in-out infinite; }
+
+@keyframes hot-dash { to { stroke-dashoffset: -16; } }
+.hot-dash { animation: hot-dash 1.1s linear infinite; }

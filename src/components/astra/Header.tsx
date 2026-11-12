@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Activity, Radio, Satellite } from "lucide-react";
+import { Activity, Radio, Satellite, Orbit } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { CREW, SCENARIOS, type CrewId, type ScenarioId } from "@/lib/telemetry";
+import { ENVIRONMENTS, environmentFor, type EnvironmentId } from "@/lib/environment";
 import { cn } from "@/lib/utils";
 
 function useMet() {
@@ -14,11 +15,13 @@ function useMet() {
 interface Props {
   crew: CrewId; onCrew: (c: CrewId) => void;
   scenario: ScenarioId; onScenario: (s: ScenarioId) => void;
+  env: EnvironmentId; onEnv: (e: EnvironmentId) => void;
   live: boolean; onLive: (b: boolean) => void;
 }
 
-export function Header({ crew, onCrew, scenario, onScenario, live, onLive }: Props) {
+export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, onLive }: Props) {
   const met = useMet();
+  const e = environmentFor(env);
   return (
     <header className="glass p-4 md:p-5 space-y-4">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -32,7 +35,7 @@ export function Header({ crew, onCrew, scenario, onScenario, live, onLive }: Pro
         <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] md:flex md:flex-wrap md:items-center gap-2 sm:gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 rounded-lg border border-caution/30 sm:col-span-2 md:col-span-1 bg-caution/5 px-3 py-2 text-xs">
             <Satellite className="size-4 shrink-0 text-caution" />
-            <span className="readout whitespace-nowrap">Earth Comms Latency: <span className="text-caution">14m 20s</span></span>
+            <span className="readout whitespace-nowrap">Earth Comms Latency: <span className="text-caution">{e.comms}</span></span>
             <span className="whitespace-nowrap text-muted-foreground">— Autonomous Mode Active</span>
           </div>
           <label className="flex min-h-10 items-center justify-between gap-2 rounded-lg border border-border px-3 py-1.5 text-xs">
@@ -45,6 +48,23 @@ export function Header({ crew, onCrew, scenario, onScenario, live, onLive }: Pro
           </Select>
         </div>
       </div>
+
+      <div className="space-y-2">
+        <div className="-mx-4 px-4 md:mx-0 md:px-0 flex items-center gap-2 overflow-x-auto pb-1">
+          <span className="readout flex shrink-0 items-center gap-1.5 mr-1 text-[10px] uppercase tracking-widest text-muted-foreground"><Orbit className="size-3.5" />Mission Environment</span>
+          {ENVIRONMENTS.map((x) => (
+            <button key={x.id} onClick={() => onEnv(x.id)}
+              className={cn("shrink-0 whitespace-nowrap rounded-md border px-3 py-2 text-xs transition-colors",
+                env === x.id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground")}>
+              {x.label}
+            </button>
+          ))}
+        </div>
+        <p className="readout px-0.5 text-[10px] leading-relaxed text-muted-foreground">
+          {e.gravity} · {e.dose} · {e.short}
+        </p>
+      </div>
+
       <div className="-mx-4 px-4 md:mx-0 md:px-0 flex items-center gap-2 overflow-x-auto md:flex-wrap pb-1 md:pb-0">
         <span className="readout shrink-0 mr-1 text-[10px] uppercase tracking-widest text-muted-foreground">Scenario Sim</span>
         {SCENARIOS.map((s, i) => (
