@@ -19,7 +19,7 @@ export function vitalStatus(v: Vitals): Record<"hr" | "spo2" | "temp" | "radiati
     hr: v.hr > 110 || v.hr < 45 ? "critical" : v.hr > 90 ? "caution" : "nominal",
     spo2: v.spo2 < 92 ? "critical" : v.spo2 < 95 ? "caution" : "nominal",
     temp: v.temp >= 38.5 || v.temp < 35.5 ? "critical" : v.temp >= 37.6 ? "caution" : "nominal",
-    radiation: v.radiation >= 150 ? "critical" : v.radiation >= 100 ? "caution" : "nominal",
+    radiation: v.radiation >= 150 || v.doseRate >= 5 ? "critical" : v.radiation >= 100 ? "caution" : "nominal",
     bone: v.bone <= -4 ? "critical" : v.bone <= -2.5 ? "caution" : "nominal",
   };
 }
@@ -47,9 +47,13 @@ export function triage(v: Vitals, log?: SymptomLog | null) {
     acts.forEach(([id, text]) => actions.push({ id, text, priority: r.severity }));
   };
 
+  if (v.doseRate >= 5) add({ id: "spe", severity: "critical", title: "Solar particle event — acute dose rate",
+    detail: `Dose rate ${v.doseRate.toFixed(1)} mSv/day (≈${Math.round(v.doseRate / 0.45)}× background). Risk of acute radiation syndrome prodrome (nausea, fatigue) and CNS effects if unshielded.` },
+    [["spe-1", "Shelter in place: move to storm shelter now and stay until all-clear"], ["spe-2", "Take potassium iodide (KI) 130 mg only if flight surgeon / ground confirms radioiodine exposure"], ["spe-3", "Administer ondansetron 8 mg if nausea develops (ARS prodrome)"]]);
+
   if (v.radiation >= 100) add({ id: "rad", severity: v.radiation >= 150 ? "critical" : "caution", title: "Acute radiation exposure",
     detail: `Cumulative dose ${v.radiation.toFixed(1)} mSv. Proton flux spike consistent with a solar particle event; tissue and CNS dose accruing faster than mission plan.` },
-    [["rad-1", "Relocate to shielded storm shelter module (water-wall)"], ["rad-2", "Log personal dosimeter reading every 30 min"], ["rad-3", "Defer all EVA and window-cupola activity"]]);
+    [...(v.doseRate >= 5 ? [] : [["rad-1", "Relocate to shielded storm shelter module (water-wall)"] as [string, string]]), ["rad-2", "Log personal dosimeter reading every 30 min"], ["rad-3", "Defer all EVA and window-cupola activity"]]);
 
   if (v.temp >= 37.6 || v.hydration < 85) add({ id: "heat", severity: v.temp >= 38.5 ? "critical" : "caution", title: "Thermal load & dehydration",
     detail: `Core temp ${v.temp.toFixed(1)} °C with hydration at ${Math.round(v.hydration)}% of target. Suit cooling deficit and fluid loss post-EVA.` },

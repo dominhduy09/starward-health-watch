@@ -18,9 +18,9 @@ function Spark({ data, k, sev }: { data: Point[]; k: keyof Point; sev: Severity 
   );
 }
 
-function Card({ icon: Icon, label, value, unit, sub, sev, children }: { icon: typeof HeartPulse; label: string; value: string; unit: string; sub?: React.ReactNode; sev: Severity; children?: React.ReactNode }) {
+function Card({ icon: Icon, label, value, unit, sub, sev, flash, children }: { icon: typeof HeartPulse; label: string; value: string; unit: string; sub?: React.ReactNode; sev: Severity; flash?: boolean; children?: React.ReactNode }) {
   return (
-    <div className={cn("glass p-4 flex flex-col gap-2", sev === "critical" && "border-critical/50")}>
+    <div className={cn("glass p-4 flex flex-col gap-2", sev === "critical" && "border-critical/50", flash && "radiation-flash")}>
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-2 text-xs text-muted-foreground"><Icon className={cn("size-4", sevText[sev])} />{label}</span>
         <span className={cn("readout rounded border px-1.5 py-0.5 text-[10px] uppercase", sevBadge[sev])}>{sev}</span>
@@ -44,8 +44,9 @@ export function VitalCards({ v, crew, data, score }: { v: Vitals; crew: Crew; da
       </Card>
       <Card icon={Droplets} label="Blood Oxygen" value={`${v.spo2}`} unit="% SpO₂" sev={st.spo2} sub="Safe ≥ 95%"><Spark data={data} k="spo2" sev={st.spo2} /></Card>
       <Card icon={Thermometer} label="Core Body Temp" value={v.temp.toFixed(1)} unit="°C" sev={st.temp} sub={`Hydration ${Math.round(v.hydration)}%`}><Spark data={data} k="temp" sev={st.temp} /></Card>
-      <Card icon={Radiation} label="Cumulative Radiation" value={v.radiation.toFixed(1)} unit="mSv" sev={st.radiation}
+      <Card icon={Radiation} label="Cumulative Radiation" value={v.radiation.toFixed(1)} unit="mSv" sev={st.radiation} flash={v.doseRate >= 5}
         sub={<>Mission {crew.missionLimit} · Career {crew.careerLimit} mSv</>}>
+        {v.doseRate >= 5 && <div className="readout text-[11px] font-semibold text-critical animate-pulse">⚠ DOSE RATE {v.doseRate.toFixed(1)} mSv/day — SPE</div>}
         <div className="h-2 rounded-full bg-muted overflow-hidden mt-2"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: sevStroke[st.radiation] }} /></div>
         <div className="readout text-[10px] text-muted-foreground">{pct.toFixed(0)}% of mission limit</div>
       </Card>

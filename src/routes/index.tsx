@@ -35,6 +35,8 @@ function Dashboard() {
 
   const crew = CREW.find((c) => c.id === crewId)!;
   useEffect(() => { setDone(new Set()); }, [crewId, scenario]);
+  // Symptom logs describe a moment in time; a new scenario starts a fresh assessment.
+  useEffect(() => { setLogs({ vance: [], chen: [], sato: [] }); }, [scenario]);
   useEffect(() => {
     if (!live) return;
     const t = setInterval(() => setTick((n) => n + 1), 2000);

@@ -157,3 +157,5 @@
 .copilot-md li.task-list-item { display: flex; align-items: flex-start; gap: 0.25rem; }
 .copilot-md li.task-list-item > button { margin-top: 0.2rem; flex-shrink: 0; }
 .copilot-md li.task-list-item > p { margin: 0; }
+@keyframes radiation-flash { 0%,100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 24px -2px var(--color-critical); border-color: var(--color-critical); } }
+.radiation-flash { animation: radiation-flash 1.2s ease-in-out infinite; }

@@ -8,6 +8,7 @@ export interface Vitals {
   cognitive: number; // 0-100
   sleepHours: number; remPct: number; stress: number; // 0-100
   hydration: number; // % of target
+  doseRate: number; // mSv/day
 }
 
 export interface Crew {
@@ -17,13 +18,13 @@ export interface Crew {
 
 const base = (o: Partial<Vitals>): Vitals => ({
   hr: 64, hrv: 62, spo2: 98, temp: 36.8, radiation: 68, bone: -1.9, cognitive: 88,
-  sleepHours: 7.1, remPct: 22, stress: 28, hydration: 96, ...o,
+  sleepHours: 7.1, remPct: 22, stress: 28, hydration: 96, doseRate: 0.45, ...o,
 });
 
 export const CREW: Crew[] = [
   { id: "vance", name: "Cmdr. Elena Vance", role: "Mission Commander", baseline: base({}), missionLimit: 300, careerLimit: 600 },
   { id: "chen", name: "Dr. Marcus Chen", role: "Flight Surgeon", baseline: base({ hr: 60, hrv: 70, radiation: 54, bone: -1.4, cognitive: 91 }), missionLimit: 300, careerLimit: 600 },
-  { id: "sato", name: "Spec. Kenji Sato", role: "Mission Specialist / EVA", baseline: base({ hr: 67, hrv: 55, radiation: 81, bone: -2.6, cognitive: 85 }), missionLimit: 300, careerLimit: 600 },
+  { id: "sato", name: "Spec. Kenji Sato", role: "Mission Specialist / EVA", baseline: base({ hr: 67, hrv: 55, radiation: 81, bone: -2.3, cognitive: 85 }), missionLimit: 300, careerLimit: 600 },
 ];
 
 export interface Scenario { id: ScenarioId; label: string; short: string; delta: Partial<Vitals>; }
@@ -31,7 +32,7 @@ export interface Scenario { id: ScenarioId; label: string; short: string; delta:
 export const SCENARIOS: Scenario[] = [
   { id: "nominal", label: "Nominal Orbit", short: "All systems nominal", delta: {} },
   { id: "spe", label: "Solar Particle Event", short: "SPE in progress — proton flux elevated",
-    delta: { hr: 24, hrv: -18, radiation: 46, cognitive: -18, stress: 30, sleepHours: -1.5, spo2: -1 } },
+    delta: { hr: 24, hrv: -18, radiation: 46, doseRate: 8.6, cognitive: -18, stress: 30, sleepHours: -1.5, spo2: -1 } },
   { id: "eva", label: "Extended EVA Strain", short: "Post-EVA (7h 42m) recovery",
     delta: { hr: 38, hrv: -32, temp: 1.6, hydration: -19, spo2: -3, cognitive: -14, stress: 22 } },
   { id: "circadian", label: "Circadian & Isolation Stress", short: "Week 3 of shifted sleep schedule",
