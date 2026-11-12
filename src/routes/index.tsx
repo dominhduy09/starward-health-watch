@@ -6,6 +6,7 @@ import { TelemetryChart } from "@/components/astra/TelemetryChart";
 import { TriagePanel } from "@/components/astra/TriagePanel";
 import { SymptomDrawer } from "@/components/astra/SymptomDrawer";
 import { CopilotChat } from "@/components/astra/CopilotChat";
+import { DemoVideo } from "@/components/astra/DemoVideo";
 import { type Point, CREW, SCENARIOS, jitter, rng, series, vitalsFor, type CrewId, type ScenarioId } from "@/lib/telemetry";
 import { triage, type SymptomLog } from "@/lib/triage";
 
@@ -81,6 +82,7 @@ function Dashboard() {
             </TriagePanel>
           </div>
         </div>
+        <DemoVideo />
       </main>
     </div>
   );
