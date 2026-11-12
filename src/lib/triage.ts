@@ -14,15 +14,14 @@ export interface SymptomLog {
 export interface Risk { id: string; severity: Severity; title: string; detail: string; }
 export interface Action { id: string; text: string; priority: Severity; }
 
-export function vitalStatus(v: Vitals) {
+export function vitalStatus(v: Vitals): Record<"hr" | "spo2" | "temp" | "radiation" | "bone", Severity> {
   return {
     hr: v.hr > 110 || v.hr < 45 ? "critical" : v.hr > 90 ? "caution" : "nominal",
     spo2: v.spo2 < 92 ? "critical" : v.spo2 < 95 ? "caution" : "nominal",
     temp: v.temp >= 38.5 || v.temp < 35.5 ? "critical" : v.temp >= 37.6 ? "caution" : "nominal",
     radiation: v.radiation >= 150 ? "critical" : v.radiation >= 100 ? "caution" : "nominal",
     bone: v.bone <= -4 ? "critical" : v.bone <= -2.5 ? "caution" : "nominal",
-    cognitive: 0 as number, // filled below
-  } as Record<string, Severity | number>;
+  };
 }
 
 export function readinessScore(v: Vitals, log?: SymptomLog | null): number {

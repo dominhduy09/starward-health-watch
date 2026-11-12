@@ -33,7 +33,7 @@ function Card({ icon: Icon, label, value, unit, sub, sev, children }: { icon: ty
 }
 
 export function VitalCards({ v, crew, data, score }: { v: Vitals; crew: Crew; data: Point[]; score: number }) {
-  const st = vitalStatus(v) as Record<string, Severity>;
+  const st = vitalStatus(v);
   const hrSev: Severity = st.hr === "critical" ? "critical" : st.hr === "caution" || v.hrv < 45 ? "caution" : "nominal";
   const pct = Math.min(100, (v.radiation / crew.missionLimit) * 100);
   const cs = scoreSeverity(score);
