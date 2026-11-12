@@ -31,11 +31,11 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const ctxRef = useRef(context);
   ctxRef.current = context;
 
-  useEffect(() => { endRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, [msgs, busy]);
+  useEffect(() => { const el = listRef.current; if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }); }, [msgs, busy]);
 
   const send = async (text: string) => {
     const q = text.trim();
@@ -59,18 +59,18 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
   return (
     <div className="rounded-lg border border-border bg-background/40 flex flex-col">
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-        <span className="flex items-center gap-2 text-xs font-medium"><Stethoscope className="size-4 text-primary" />AI Space-Medicine Copilot</span>
-        <span className="flex items-center gap-2">
-          <span className="readout text-[10px] text-muted-foreground">Vitals linked · {context.crew.split(" ").pop()}</span>
+        <span className="flex min-w-0 items-center gap-2 text-xs font-medium"><Stethoscope className="size-4 text-primary" />AI Space-Medicine Copilot</span>
+        <span className="flex shrink-0 items-center gap-2">
+          <span className="readout hidden sm:inline text-[10px] text-muted-foreground">Vitals linked · {context.crew.split(" ").pop()}</span>
           {msgs.length > 0 && <button aria-label="Clear chat" onClick={() => setMsgs([])} className="text-muted-foreground hover:text-foreground"><Trash2 className="size-3.5" /></button>}
         </span>
       </div>
-      <div className="max-h-[420px] overflow-y-auto p-3 space-y-3">
+      <div ref={listRef} className="max-h-[55vh] md:max-h-[480px] overflow-y-auto overscroll-contain p-3 space-y-3">
         {msgs.length === 0 && !busy && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Describe symptoms or ask a medical question. Current vitals and scenario are sent automatically.</p>
             {["Mild throbbing headache and slight visual blurring after EVA — should I take ibuprofen?", "I feel nauseous and disoriented. What should I do?"].map((s) => (
-              <button key={s} onClick={() => send(s)} className="block w-full text-left text-xs rounded-md border border-border px-2.5 py-2 text-muted-foreground hover:border-primary/50 hover:text-foreground">{s}</button>
+              <button key={s} onClick={() => send(s)} className="block w-full text-left text-xs rounded-md border border-border px-3 py-2.5 text-muted-foreground hover:border-primary/50 hover:text-foreground">{s}</button>
             ))}
           </div>
         )}
@@ -79,12 +79,11 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
           : <div key={i} className="flex gap-2"><Stethoscope className="size-4 mt-1 shrink-0 text-primary" /><Markdown text={m.content} /></div>)}
         {busy && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin" />Analyzing telemetry against flight surgeon protocols…</div>}
         {err && <div className="text-xs text-critical">{err}</div>}
-        <div ref={endRef} />
-      </div>
+              </div>
       <form className="flex items-end gap-2 border-t border-border p-2" onSubmit={(e) => { e.preventDefault(); void send(input); }}>
-        <Textarea value={input} onChange={(e) => setInput(e.target.value)} rows={2} placeholder="Describe symptoms…" className="min-h-0 resize-none text-sm"
+        <Textarea value={input} onChange={(e) => setInput(e.target.value)} rows={2} placeholder="Describe symptoms…" className="min-h-11 resize-none text-base md:text-sm"
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(input); } }} />
-        <button type="submit" disabled={busy || !input.trim()} aria-label="Send" className={cn("grid size-9 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground disabled:opacity-40")}>
+        <button type="submit" disabled={busy || !input.trim()} aria-label="Send" className={cn("grid size-11 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground disabled:opacity-40")}>
           <SendHorizontal className="size-4" />
         </button>
       </form>

@@ -18,12 +18,12 @@ export function TelemetryChart({ data, range, onRange }: { data: Point[]; range:
           <p className="text-xs text-muted-foreground">Shaded bands mark safe operating zones</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {LAYERS.map((l) => <button key={l.id} className={btn(layer === l.id)} onClick={() => setLayer(l.id)}>{l.label}</button>)}
-          <span className="w-px bg-border mx-1" />
-          {(["24h", "30d"] as const).map((r) => <button key={r} className={cn(btn(range === r), "readout")} onClick={() => onRange(r)}>{r === "24h" ? "24 H" : "30 DAYS"}</button>)}
+          {LAYERS.map((l) => <button key={l.id} className={cn(btn(layer === l.id), "min-h-9")} onClick={() => setLayer(l.id)}>{l.label}</button>)}
+          <span className="hidden sm:block w-px bg-border mx-1" />
+          {(["24h", "30d"] as const).map((r) => <button key={r} className={cn(btn(range === r), "readout min-h-9")} onClick={() => onRange(r)}>{r === "24h" ? "24 H" : "30 DAYS"}</button>)}
         </div>
       </div>
-      <div className="h-[320px]">
+      <div className="h-[260px] sm:h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
             <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />

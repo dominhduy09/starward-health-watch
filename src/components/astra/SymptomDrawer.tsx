@@ -28,25 +28,25 @@ export function SymptomDrawer({ history, onSubmit, onAsk }: { history: SymptomLo
       <SheetTrigger asChild>
         <Button className="w-full gap-2"><ClipboardPlus className="size-4" />Log Symptoms & Self-Assessment</Button>
       </SheetTrigger>
-      <SheetContent className="overflow-y-auto">
-        <SheetHeader>
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto overscroll-contain p-0">
+        <SheetHeader className="p-5 pr-12 pb-2 text-left">
           <SheetTitle>Crew Self-Assessment</SheetTitle>
           <SheetDescription>Subjective inputs recalculate readiness and triage instantly.</SheetDescription>
         </SheetHeader>
-        <div className="space-y-5 px-4 pb-6">
+        <div className="space-y-5 px-5 pb-8">
           {FLAGS.map(([k, label]) => (
-            <label key={k} className="flex items-center justify-between text-sm">{label}
+            <label key={k} className="flex min-h-11 items-center justify-between gap-4 text-sm">{label}
               <Switch checked={f[k]} onCheckedChange={(b) => setF({ ...f, [k]: b })} />
             </label>
           ))}
           {([["sleepQuality", "Sleep quality"], ["mood", "Mood (1 isolated · 10 great)"]] as const).map(([k, label]) => (
             <div key={k} className="space-y-2">
-              <div className="flex justify-between text-sm">{label}<span className="readout text-primary">{f[k]}/10</span></div>
+              <div className="flex justify-between gap-4 text-sm">{label}<span className="readout text-primary">{f[k]}/10</span></div>
               <Slider min={1} max={10} step={1} value={[f[k]]} onValueChange={([n]) => setF({ ...f, [k]: n })} />
             </div>
           ))}
           <Textarea placeholder="Notes for flight surgeon…" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Button onClick={submit}>Submit Assessment</Button>
             <Button variant="outline" className="gap-2" onClick={askAi}><Stethoscope className="size-4" />Ask AI Copilot</Button>
           </div>
