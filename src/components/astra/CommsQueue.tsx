@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { play } from "@/lib/sound";
+import { toast } from "sonner";
 import { Send, Satellite, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { commsSeconds, fmtDelay } from "@/lib/comms";
@@ -10,7 +12,13 @@ export function CommsQueue({ comms, envName, summary }: { comms: string; envName
   const [now, setNow] = useState(0);
   useEffect(() => { setNow(Date.now()); const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const delay = commsSeconds(comms);
-  const send = () => setMsgs((p) => [{ id: crypto.randomUUID(), text: summary, sentAt: Date.now(), delay }, ...p].slice(0, 4));
+  const delivered = useRef(new Set<string>());
+  useEffect(() => {
+    for (const m of msgs) if (!delivered.current.has(m.id) && now - m.sentAt >= m.delay * 1000) {
+      delivered.current.add(m.id); play("ping"); toast.success("Message delivered to Houston");
+    }
+  }, [now, msgs]);
+  const send = () => { play("whoosh"); setMsgs((p) => [{ id: crypto.randomUUID(), text: summary, sentAt: Date.now(), delay }, ...p].slice(0, 4)); };
   return (
     <div className="glass p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">

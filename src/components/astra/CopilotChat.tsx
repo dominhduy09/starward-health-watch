@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScanInput } from "./ScanInput";
 import type { ScanAttachment } from "@/lib/scans";
 import { cn } from "@/lib/utils";
+import { play } from "@/lib/sound";
 
 type Msg = { role: "user" | "assistant"; content: string };
 export interface PendingAsk { prompt: string; scan?: ScanAttachment | null; demoReply?: string; }
@@ -52,14 +53,14 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
     try {
       const r = await ask({ data: { context: ctxRef.current, messages: next, scan: useScan ?? null } });
       if (r.error) { setErr(r.error); setInput(q); setMsgs(msgs); }
-      else { setMsgs([...next, { role: "assistant", content: r.text }]); setScan(null); }
+      else { setMsgs([...next, { role: "assistant", content: r.text }]); setScan(null); play("receive"); }
     } catch {
       setErr("Copilot uplink failed. Try again."); setInput(q); setMsgs(msgs);
     } finally { setBusy(false); }
   };
 
   useEffect(() => {
-    if (pending?.demoReply) { setMsgs((m) => [...m, { role: "user", content: pending.prompt }, { role: "assistant", content: pending.demoReply! }]); onPendingDone(); }
+    if (pending?.demoReply) { setMsgs((m) => [...m, { role: "user", content: pending.prompt }, { role: "assistant", content: pending.demoReply! }]); play("receive"); onPendingDone(); }
     else if (pending) { void send(pending.prompt, pending.scan ?? null); onPendingDone(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending]);

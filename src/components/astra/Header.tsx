@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Activity, Radio, Satellite, Orbit, Play, Square, BookOpen, FileText } from "lucide-react";
+import { Activity, Radio, Satellite, Orbit, Play, Square, Volume2, VolumeX, BookOpen, FileText } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,9 +20,10 @@ interface Props {
   env: EnvironmentId; onEnv: (e: EnvironmentId) => void;
   live: boolean; onLive: (b: boolean) => void;
   touring: boolean; onTour: () => void; onReport: () => void;
+  sound: boolean; onSound: () => void;
 }
 
-export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, onLive, touring, onTour, onReport }: Props) {
+export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, onLive, touring, onTour, onReport, sound, onSound }: Props) {
   const met = useMet();
   const e = environmentFor(env);
   return (
@@ -58,6 +59,7 @@ export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, o
           {touring ? <><Square className="size-4" />Stop tour</> : <><Play className="size-4" />Start 30-sec Judge Tour</>}
         </Button>
         <Button size="sm" variant="outline" className="gap-2" onClick={onReport}><FileText className="size-4" />Export Crew Report</Button>
+        <Button size="sm" variant="outline" className="gap-2" onClick={onSound} aria-pressed={sound}>{sound ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}{sound ? "Sound on" : "Sound off"}</Button>
         <Button size="sm" variant="outline" className="gap-2" asChild><Link to="/evidence"><BookOpen className="size-4" />Data & Evidence</Link></Button>
       </div>
 

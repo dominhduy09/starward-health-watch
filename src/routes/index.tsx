@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Header } from "@/components/astra/Header";
 import { VitalCards } from "@/components/astra/VitalCards";
 import { TelemetryChart } from "@/components/astra/TelemetryChart";
@@ -13,6 +13,9 @@ import { CommsQueue } from "@/components/astra/CommsQueue";
 import { CrewOverview } from "@/components/astra/CrewOverview";
 import { CrewReport } from "@/components/astra/CrewReport";
 import { useTour } from "@/components/astra/useTour";
+import { WelcomeCard } from "@/components/astra/WelcomeCard";
+import { play, readSoundPref, setSoundEnabled, writeSoundPref } from "@/lib/sound";
+import { toast } from "sonner";
 import { type Point, CREW, SCENARIOS, jitter, rng, series, vitalsFor, type CrewId, type ScenarioId } from "@/lib/telemetry";
 import { environmentFor, type EnvironmentId } from "@/lib/environment";
 import { triage, type SymptomLog } from "@/lib/triage";
@@ -47,7 +50,12 @@ function Dashboard() {
   const [streak, setStreak] = useState<StreakState>(seedStreak);
   const [hydrated, setHydrated] = useState(false);
 
+  const [sound, setSound] = useState(true);
+  useEffect(() => { const on = readSoundPref(localStorage); setSound(on); setSoundEnabled(on); }, []);
+  const toggleSound = () => { const on = !sound; setSound(on); setSoundEnabled(on); writeSoundPref(localStorage, on); if (on) play("blip"); };
+  const pick = <T,>(fn: (x: T) => void) => (x: T) => { play("blip"); fn(x); };
   const tour = useTour({ setScenario, setEnv, setCrewId, setFocus, setPending });
+  const startTour = () => { if (!tour.active && !sound) toggleSound(); tour.toggle(); };
   const crew = CREW.find((c) => c.id === crewId)!;
   const environment = environmentFor(env);
   useEffect(() => { setDone(new Set()); }, [crewId, scenario]);
@@ -79,6 +87,22 @@ function Dashboard() {
     v, risks: t.risks, log: latestLog, aredDone, completed, total: t.actions.length, streak: streak.streak,
   }), [v, t.risks, latestLog, aredDone, completed, t.actions.length, streak.streak]);
 
+  // Friendly feedback: status sounds and badge celebrations.
+  const prevLevel = useRef(t.level);
+  useEffect(() => {
+    if (prevLevel.current === t.level) return;
+    prevLevel.current = t.level;
+    play(t.level === "NOMINAL" ? "nominal" : t.level === "CAUTION" ? "caution" : "critical");
+  }, [t.level]);
+  const prevBadges = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const now = new Set(a.badges.filter((b) => b.unlocked).map((b) => b.id));
+    const prev = prevBadges.current; prevBadges.current = now;
+    if (!prev || !hydrated) return;
+    const fresh = a.badges.filter((b) => now.has(b.id) && !prev.has(b.id));
+    if (fresh.length) { play("badge"); fresh.forEach((b) => toast.success(`Badge unlocked: ${b.label} 🎉`, { description: "Great job — keep it up!" })); }
+  }, [a.badges, hydrated]);
+
   // A day only banks once the adherence score clears the flight-rule threshold.
   const today = new Date().toISOString().slice(0, 10);
   useEffect(() => {
@@ -90,9 +114,10 @@ function Dashboard() {
   return (
     <div className="min-h-screen space-bg">
       <main className="print:hidden mx-auto max-w-[1600px] p-3 md:p-6 space-y-4">
-        <Header crew={crewId} onCrew={setCrewId} scenario={scenario} onScenario={setScenario}
-          env={env} onEnv={setEnv} live={live} onLive={setLive}
-          touring={tour.active} onTour={tour.toggle} onReport={() => window.print()} />
+        <Header crew={crewId} onCrew={pick(setCrewId)} scenario={scenario} onScenario={pick(setScenario)}
+          env={env} onEnv={pick(setEnv)} live={live} onLive={setLive}
+          touring={tour.active} onTour={startTour} sound={sound} onSound={toggleSound} onReport={() => window.print()} />
+        <WelcomeCard onTour={startTour} />
         {tour.caption && (
           <div role="status" className="glass border-primary/60 p-4 text-sm"><span className="readout mr-2 text-primary">TOUR {tour.step}/5</span>{tour.caption}</div>
         )}
@@ -100,6 +125,7 @@ function Dashboard() {
           <div className="lg:col-span-2 min-w-0 space-y-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2 px-1">
               <h2 className="text-sm font-semibold">{crew.name} <span className="text-muted-foreground font-normal">· {crew.role}</span></h2>
+              <p className="w-full text-xs text-muted-foreground">These cards show how {crew.name.split(" ").pop()}'s body is doing right now. Green is good, amber means watch, red means act.</p>
               <span className="readout text-[10px] text-caution">SIMULATION ONLY · {live ? "STREAMING · 0.5 Hz" : "PAUSED"}</span>
             </div>
             <VitalCards v={v} crew={crew} data={data} score={t.score} focus={focus} />
@@ -113,7 +139,7 @@ function Dashboard() {
               onAsk={(prompt, scan) => setPending({ prompt, scan })} />
             <TriagePanel level={t.level} risks={t.risks} actions={t.actions} done={done} scenarioNote={note}
               hazards={t.hazards} envName={environment.label}
-              onToggle={(id) => setDone((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; })}>
+              onToggle={(id) => { play("tick"); if (!done.has(id) && completed + 1 === t.actions.length) toast.success("All review steps done — nice work! ✅"); setDone((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; }); }}>
               <CopilotChat pending={pending} onPendingDone={() => setPending(null)} context={{
                 crew: crew.name, role: crew.role, scenario: SCENARIOS.find((s) => s.id === scenario)!.label, status: t.level,
                 environment: `${environment.label} (${environment.gravity}, comms ${environment.comms})`,
