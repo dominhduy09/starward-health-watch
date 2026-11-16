@@ -30,6 +30,7 @@ export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, o
           <div className="min-w-0">
             <h1 className="text-base sm:text-lg md:text-xl font-semibold tracking-tight">ASTRA-MED <span className="text-primary">//</span> <span className="block sm:inline text-muted-foreground font-normal text-sm sm:text-lg md:text-xl">Deep Space Crew Health Telemetry</span></h1>
             <p className="readout text-xs text-muted-foreground">MET: <span className="text-foreground">Day 142 | {met} UTC</span></p>
+            <p className="mt-1 text-xs font-medium text-caution">SIMULATION ONLY · Fictional telemetry and readiness · Not for clinical use</p>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] md:flex md:flex-wrap md:items-center gap-2 sm:gap-3">

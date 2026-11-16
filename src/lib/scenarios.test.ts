@@ -8,13 +8,13 @@ describe.each(CREW.map((c) => [c.name, c] as const))("%s", (_n, crew) => {
     expect(triage(v).level).toBe("NOMINAL");
     expect(Object.values(vitalStatus(v)).every((s) => s === "nominal")).toBe(true);
   });
-  it("Solar Particle Event is CRITICAL with shelter and potassium iodide steps", () => {
+  it("Solar Particle Event is CRITICAL with shelter but no unverified potassium iodide", () => {
     const v = vitalsFor(crew, "spe");
     const t = triage(v);
     expect(t.level).toBe("CRITICAL");
     expect(vitalStatus(v).radiation).toBe("critical");
     expect(t.actions.some((a) => /shelter in place/i.test(a.text))).toBe(true);
-    expect(t.actions.some((a) => /potassium iodide/i.test(a.text))).toBe(true);
+    expect(t.actions.some((a) => /potassium iodide|\bKI\b/i.test(a.text))).toBe(false);
   });
   it("Circadian stress lowers readiness and logs sleep deficit", () => {
     const n = triage(vitalsFor(crew, "nominal")).score;

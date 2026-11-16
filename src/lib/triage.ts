@@ -23,7 +23,9 @@ export interface Risk {
   /** NASA HRP hazard tags. */
   hazards: HazardId[];
 }
-export interface Action { id: string; text: string; priority: Severity; }
+export interface Action { id: string; text: string; priority: Severity; requiresFlightSurgeonConfirmation?: boolean; }
+
+const TREATMENT_IDS = new Set(["spe-3", "heat-1", "heat-2", "cv-2", "o2-2", "bp-2", "glu-1", "sans-2", "imm-2", "imm-3", "circ-1", "circ-3", "bone-1", "sym-nau-1"]);
 
 export function vitalStatus(v: Vitals): Record<"hr" | "spo2" | "temp" | "radiation" | "bone" | "bp" | "glucose" | "ossd" | "immune", Severity> {
   return {
@@ -60,13 +62,17 @@ export function triage(v: Vitals, log?: SymptomLog | null, env?: Environment) {
   const actions: Action[] = [];
   const add = (r: Risk, acts: [string, string][]) => {
     risks.push(r);
-    acts.forEach(([id, text]) => actions.push({ id, text, priority: r.severity }));
+    acts.forEach(([id, text]) => {
+      const requiresFlightSurgeonConfirmation = TREATMENT_IDS.has(id);
+      actions.push({ id, text: requiresFlightSurgeonConfirmation ? `Request flight-surgeon confirmation before: ${text}` : text,
+        priority: r.severity, requiresFlightSurgeonConfirmation });
+    });
   };
 
   if (v.doseRate >= 5) add({ id: "spe", severity: "critical", title: "Solar particle event — acute dose rate",
     detail: `Dose rate ${v.doseRate.toFixed(1)} mSv/day (≈${Math.round(v.doseRate / 0.45)}× background). Risk of acute radiation syndrome prodrome (nausea, fatigue) and CNS effects if unshielded.`,
     system: "radiation", hazards: ["radiation", "distance", "closed"] },
-    [["spe-1", "Shelter in place: move to storm shelter now and stay until all-clear"], ["spe-2", "Take potassium iodide (KI) 130 mg only if flight surgeon / ground confirms radioiodine exposure"], ["spe-3", "Administer ondansetron 8 mg if nausea develops (ARS prodrome)"]]);
+    [["spe-1", "Shelter in place: move to storm shelter now and stay until all-clear"], ["spe-3", "any nausea medication or treatment; report symptoms for review"]]);
 
   if (v.radiation >= 100) add({ id: "rad", severity: v.radiation >= 150 ? "critical" : "caution", title: "Acute radiation exposure",
     detail: `Cumulative dose ${v.radiation.toFixed(1)} mSv. Proton flux spike consistent with a solar particle event; tissue and CNS dose accruing faster than mission plan.`,
@@ -106,12 +112,12 @@ export function triage(v: Vitals, log?: SymptomLog | null, env?: Environment) {
   if (v.viral >= 30) add({ id: "immune", severity: v.viral >= 60 ? "critical" : "caution", title: "Latent immune reactivation",
     detail: `Immune index ${Math.round(v.viral)}/100. Dormant herpes-family viruses reactivate in flight; a new rash, tingling or low-grade fever is the first visible sign.`,
     system: "immune", hazards: ["closed", "isolation", "radiation"] },
-    [["imm-1", "Photograph any rash with the scale card and upload to the Copilot"], ["imm-2", "Start topical acyclovir if lesions are present per protocol IMM-3"], ["imm-3", "Restore 8.5 h sleep period — immune recovery is sleep-dependent"]]);
+    [["imm-1", "Photograph any rash with the scale card for flight-surgeon review"], ["imm-2", "any rash medication or treatment; no approved protocol is verified here"], ["imm-3", "changing the sleep plan for immune recovery"]]);
 
   if (v.sleepHours < 6 || v.remPct < 15 || v.stress > 60) add({ id: "circ", severity: v.stress > 70 || v.sleepHours < 4.5 ? "critical" : "caution", title: "Circadian disruption & isolation stress",
     detail: `${v.sleepHours.toFixed(1)} h sleep, ${Math.round(v.remPct)}% REM, stress index ${Math.round(v.stress)}. Elevated cortisol pattern degrading executive function.`,
     system: "neuro", hazards: ["isolation", "closed"] },
-    [["circ-1", "Schedule 20-min 6500K blue-light exposure at wake"], ["circ-2", "Private family/psych conference at next comm window"], ["circ-3", "Protect 8.5 h sleep period; melatonin 3 mg"]]);
+    [["circ-1", "light therapy or changes to the sleep plan"], ["circ-2", "Private family/psych conference at next comm window"], ["circ-3", "any sleep medication; discuss a protected sleep period"]]);
 
   if (v.bone <= -2.5) add({ id: "bone", severity: v.bone <= -4 ? "critical" : "caution", title: "Microgravity bone loss",
     detail: `BMD ${v.bone.toFixed(1)}% since launch — above the ~1%/month expected rate.`,
@@ -130,11 +136,11 @@ export function triage(v: Vitals, log?: SymptomLog | null, env?: Environment) {
     if (log.nausea) add({ id: "sym-nau", severity: "caution", title: "Space motion sickness",
       detail: "Nausea reported; restrict head movement and assess hydration.",
       system: "neuro", hazards: ["gravity"] },
-      [["sym-nau-1", "Take promethazine 25 mg per protocol SMS-1"]]);
+      [["sym-nau-1", "any motion-sickness medication or treatment"]]);
     if (log.scan) add({ id: "sym-scan", severity: "caution", title: "Diagnostic scan attached",
       detail: `${log.scan.label} attached to this assessment — visual findings sent to the AI Copilot for structured read-back.`,
       system: log.scan.label.toLowerCase().includes("ultrasound") ? "neuro" : "immune", hazards: ["gravity", "closed"] },
-      [["sym-scan-1", "Review the Copilot's image findings and confirm the checklist"]]);
+      [["sym-scan-1", "Send unvalidated image observations to the flight surgeon; Copilot output is not clinical confirmation"]]);
   }
 
   const score = readinessScore(v, log);

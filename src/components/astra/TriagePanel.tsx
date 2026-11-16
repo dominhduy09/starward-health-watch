@@ -33,7 +33,8 @@ export function TriagePanel({ level, risks, actions, done, onToggle, scenarioNot
   const completed = actions.filter((a) => done.has(a.id)).length;
   return (
     <div className="glass p-4 md:p-5 flex flex-col gap-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground"><Cpu className="size-4 text-primary" />Autonomous Triage Copilot</div>
+       <div className="flex items-center gap-2 text-xs text-muted-foreground"><Cpu className="size-4 text-primary" />Autonomous Triage Copilot</div>
+       <p className="text-xs text-caution">Simulation only · Risks and steps are illustrative, not validated diagnoses or verified NASA protocols. Medication and treatment require flight-surgeon confirmation; ticking a step is not authorization.</p>
       <div className={cn("rounded-lg border p-4", sevBadge[sev], level === "CRITICAL" && "animate-pulse")}>
         <div className="readout text-[10px] uppercase tracking-widest opacity-80">Crew Health Status</div>
         <div className="flex items-center gap-2 mt-1"><Icon className="size-6" /><span className="readout text-2xl font-bold">{level}</span></div>
@@ -64,7 +65,7 @@ export function TriagePanel({ level, risks, actions, done, onToggle, scenarioNot
       </div>
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs uppercase tracking-wider text-muted-foreground">Intervention Protocol</h3>
+          <h3 className="text-xs uppercase tracking-wider text-muted-foreground">Simulation Review Checklist</h3>
           <span className="readout text-xs text-primary">{completed}/{actions.length}</span>
         </div>
         <div className="h-1 rounded-full bg-muted mb-3 overflow-hidden"><div className="h-full bg-primary transition-all" style={{ width: `${actions.length ? (completed / actions.length) * 100 : 0}%` }} /></div>

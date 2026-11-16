@@ -15,20 +15,20 @@ export const SAMPLE_SCANS: SampleScan[] = [
   {
     id: "ocular",
     label: "Ocular Ultrasound Scan",
-    sub: "Optic nerve sheath diameter — SANS check",
+    sub: "Simulation only · generated, not a clinical scan",
     url: ocularUrl,
     prompt:
-      "Attached: ocular ultrasound, left eye sagittal view. The on-screen caliper reads an optic nerve sheath diameter of 5.4 mm. " +
-      "Is this consistent with SANS or raised intracranial pressure, what does it mean for my vision, and what should I do now?",
+      "Attached: simulation-only generated ocular ultrasound illustration. Any displayed caliper value is fictional and unvalidated. " +
+      "Describe tentative qualitative features only; do not measure or diagnose. What should I record for flight-surgeon review before any treatment?",
   },
   {
     id: "rash",
     label: "Dermal Microgravity Rash Photo",
-    sub: "Immune reactivation check",
+    sub: "Simulation only · generated, not a patient photo",
     url: rashUrl,
     prompt:
-      "Attached: photo of a rash on my forearm that appeared this morning — small red bumps, a few with tiny clear heads, mildly itchy, no fever. " +
-      "Could this be shingles or another latent immune reactivation, and what should I do now?",
+      "Attached: simulation-only generated rash illustration, not a patient photo. " +
+      "Describe tentative qualitative features without diagnosing shingles or immune reactivation. What observations should be reviewed by the flight surgeon before treatment?",
   },
 ];
 
@@ -63,9 +63,9 @@ export async function toScanDataUrl(src: string | Blob, max = 768): Promise<stri
 }
 
 export async function fileToScan(file: File): Promise<ScanAttachment> {
-  return { label: `Uploaded capture — ${file.name}`, dataUrl: await toScanDataUrl(file) };
+  return { label: `Unvalidated uploaded capture — ${file.name}`, dataUrl: await toScanDataUrl(file) };
 }
 
 export async function sampleToScan(s: SampleScan): Promise<ScanAttachment> {
-  return { label: `${s.label} (onboard sample)`, dataUrl: await toScanDataUrl(s.url) };
+  return { label: `${s.label} (simulation only — generated, unvalidated)`, dataUrl: await toScanDataUrl(s.url) };
 }

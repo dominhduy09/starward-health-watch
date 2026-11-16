@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateResponse, GatewayError } from "@lovable.dev/ai-gateway";
+import { COPILOT_INSTRUCTIONS, safeCopilotResponse } from "./copilot-safety";
 
 export interface CopilotContext {
   crew: string; role: string; scenario: string; status: string; environment: string;
@@ -13,16 +14,6 @@ interface Input {
   scan?: { label: string; dataUrl: string } | null;
 }
 
-const SYSTEM = `You are ASTRA-MED Copilot, an autonomous space-medicine assistant aboard a deep-space vehicle with a 14-minute one-way Earth comms delay.
-Ground your advice in NASA Flight Surgeon practice, the ISS Medical Checklist, NASA-STD-3001 and known spaceflight conditions (SANS, space motion sickness, radiation exposure, EVA decompression and thermal stress, microgravity bone loss, circadian disruption, latent immune reactivation).
-Always factor in the astronaut's live telemetry provided. Be concise and operational.
-If a diagnostic image is attached, first state what you actually see in it and the measurable finding (for example optic nerve sheath diameter in mm, or rash morphology and distribution), then give the protocol. Never invent a measurement you cannot read.
-Format strictly in markdown:
-### Assessment (2-3 sentences linking symptoms, the image if present, and telemetry)
-### Intervention Protocol (GitHub task list "- [ ] step", 3-6 concrete steps, cite the protocol source in parentheses when relevant)
-### Escalation Criteria (bullets: when to wake crew medical officer / relay to ground)
-Flag medication contraindications (e.g. NSAIDs with dehydration, radiation-related thrombocytopenia, or suspected intracranial pressure). This is decision support, not a diagnosis.`;
-
 export const askCopilot = createServerFn({ method: "POST" })
   .inputValidator((d: Input) => {
     if (!d?.messages?.length || d.messages.length > 30) throw new Error("Invalid messages");
@@ -34,7 +25,7 @@ export const askCopilot = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }) => {
     const c = data.context; const v = c.vitals;
-    const telemetry = `LIVE TELEMETRY — ${c.crew} (${c.role})
+    const telemetry = `SIMULATION-ONLY TELEMETRY — NOT CLINICAL DATA — ${c.crew} (${c.role})
 Environment: ${c.environment}
 Scenario: ${c.scenario} | Triage status: ${c.status}
 HR ${v.hr} bpm, HRV ${v.hrv} ms, SpO2 ${v.spo2}%, core temp ${v.temp} °C, hydration ${v.hydration}% of target
@@ -60,14 +51,14 @@ Active risks: ${c.risks.length ? c.risks.join("; ") : "none"}`;
     try {
       const res = await generateResponse({
         model: "openai/gpt-6-astra",
-        instructions: `${SYSTEM}\n\n${telemetry}`,
+          instructions: `${COPILOT_INSTRUCTIONS}\n\n${telemetry}`,
         input,
       });
       let text = "";
       for (const item of res.output ?? []) {
         if (item.type === "message") for (const part of item.content) if (part.type === "output_text") text += part.text;
       }
-      return { text: text || "_No response returned._", error: null as string | null };
+      return { text: safeCopilotResponse(text), error: null as string | null };
     } catch (e) {
       console.error("copilot error", e);
       if (e instanceof GatewayError) {

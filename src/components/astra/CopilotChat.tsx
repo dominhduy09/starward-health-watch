@@ -68,14 +68,15 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <span className="flex min-w-0 items-center gap-2 text-xs font-medium"><Stethoscope className="size-4 text-primary" />AI Space-Medicine Copilot</span>
         <span className="flex shrink-0 items-center gap-2">
-          <span className="readout hidden sm:inline text-[10px] text-muted-foreground">Vitals linked · {context.crew.split(" ").pop()}</span>
+          <span className="readout hidden sm:inline text-[10px] text-muted-foreground">Simulated vitals · {context.crew.split(" ").pop()}</span>
           {msgs.length > 0 && <button aria-label="Clear chat" onClick={() => setMsgs([])} className="text-muted-foreground hover:text-foreground"><Trash2 className="size-3.5" /></button>}
         </span>
       </div>
+      <p className="border-b border-border px-3 py-2 text-xs text-caution">Simulation only · Images and guidance are unvalidated; NASA citations are not verified. Flight-surgeon confirmation is required before medication or treatment.</p>
       <div ref={listRef} className="max-h-[55vh] md:max-h-[480px] overflow-y-auto overscroll-contain p-3 space-y-3">
         {msgs.length === 0 && !busy && (
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Describe symptoms, ask a medical question, or attach a scan. Current vitals and scenario are sent automatically.</p>
+            <p className="text-xs text-muted-foreground">Educational review only · Not a diagnosis or treatment authorization.</p>
             {["Mild throbbing headache and slight visual blurring after EVA — should I take ibuprofen?", "I feel nauseous and disoriented. What should I do?"].map((s) => (
               <button key={s} onClick={() => send(s)} className="block w-full text-left text-xs rounded-md border border-border px-3 py-2.5 text-muted-foreground hover:border-primary/50 hover:text-foreground">{s}</button>
             ))}
@@ -84,7 +85,7 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
         {msgs.map((m, i) => m.role === "user"
           ? <div key={i} className="ml-6 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm">{m.content}</div>
           : <div key={i} className="flex min-w-0 gap-2"><Stethoscope className="size-4 mt-1 shrink-0 text-primary" /><Markdown text={m.content} /></div>)}
-        {busy && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin" />Analyzing telemetry against flight surgeon protocols…</div>}
+        {busy && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin" />Reviewing simulated context and unvalidated observations…</div>}
         {err && <div className="text-xs text-critical">{err}</div>}
       </div>
       <div className="border-t border-border p-2 space-y-2">

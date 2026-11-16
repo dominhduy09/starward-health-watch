@@ -15,7 +15,7 @@ export function TelemetryChart({ data, range, onRange }: { data: Point[]; range:
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-sm font-semibold">Telemetry Trends</h2>
-          <p className="text-xs text-muted-foreground">Shaded bands mark safe operating zones</p>
+          <p className="text-xs text-caution">Simulation only · Shaded bands are illustrative, not validated clinical limits</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {LAYERS.map((l) => <button key={l.id} className={cn(btn(layer === l.id), "min-h-9")} onClick={() => setLayer(l.id)}>{l.label}</button>)}

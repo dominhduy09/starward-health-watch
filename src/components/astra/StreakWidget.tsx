@@ -22,6 +22,7 @@ export function StreakWidget({ a, streak, best }: { a: Adherence; streak: number
   const unlocked = a.badges.filter((b) => b.unlocked);
   return (
     <div className="glass p-4 space-y-3">
+      <p className="text-[11px] font-medium text-caution">SIMULATION ONLY · Demo readiness, streaks and badges</p>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-caution/40 bg-caution/10">
@@ -29,7 +30,7 @@ export function StreakWidget({ a, streak, best }: { a: Adherence; streak: number
           </div>
           <div className="min-w-0">
             <div className="readout text-2xl font-bold leading-none text-caution">{streak}-Day</div>
-            <div className="text-[11px] text-muted-foreground">Countermeasure Streak · best {best}</div>
+            <div className="text-[11px] text-muted-foreground">Demo Streak · best {best}</div>
           </div>
         </div>
         <div className="text-right">
@@ -37,6 +38,8 @@ export function StreakWidget({ a, streak, best }: { a: Adherence; streak: number
           <div className="text-[11px] text-muted-foreground">Adherence</div>
         </div>
       </div>
+
+      <p className="text-[11px] text-muted-foreground">Includes seeded fictional history; ticks are practice logs, not medical clearance or verified treatment.</p>
 
       <div className="space-y-2">
         <Bar icon={Droplets} label="Hydration" value={a.progress.hydration} text={`${Math.round(a.progress.hydration * 100)}%`} />

@@ -37,8 +37,8 @@ export function ScanInput({ value, onChange, disabled, compact }: Props) {
       <div className="rounded-md border border-primary/40 bg-primary/5 p-2 flex items-center gap-2">
         <img src={value.dataUrl} alt="Attached diagnostic scan" loading="lazy" className={cn("rounded object-cover", compact ? "size-11" : "size-16")} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-medium text-primary">Scan attached</p>
-          <p className="truncate text-[11px] text-muted-foreground">{value.label}</p>
+          <p className="text-xs font-medium text-caution">Unvalidated image · Not a clinical finding</p>
+          <p className="break-words text-[11px] text-muted-foreground">{value.label}</p>
         </div>
         <button type="button" aria-label="Remove attached scan" disabled={disabled} onClick={() => onChange(null)}
           className="grid size-8 shrink-0 place-items-center rounded text-muted-foreground hover:text-foreground">
@@ -51,6 +51,7 @@ export function ScanInput({ value, onChange, disabled, compact }: Props) {
   return (
     <div className="space-y-2">
       <div className="readout text-[10px] uppercase tracking-widest text-muted-foreground">Diagnostic image / scan input</div>
+      <p className="text-[11px] font-medium text-caution">Samples: simulation only · Generated illustrations, not clinical captures. Image measurements are unvalidated.</p>
       <div className={cn("grid gap-2", compact ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2")}>
         {SAMPLE_SCANS.map((s) => (
           <button key={s.id} type="button" disabled={disabled || !!busy} onClick={() => pick(s)}
@@ -61,7 +62,7 @@ export function ScanInput({ value, onChange, disabled, compact }: Props) {
             </span>
             <span className="min-w-0">
               <span className="block truncate text-xs font-medium group-hover:text-primary">{s.label}</span>
-              <span className="block truncate text-[11px] text-muted-foreground">{s.sub}</span>
+              <span className="block text-[11px] text-muted-foreground">{s.sub}</span>
             </span>
           </button>
         ))}

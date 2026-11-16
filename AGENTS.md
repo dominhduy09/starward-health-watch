@@ -30,3 +30,4 @@ use the editor.
 <!-- LOVABLE:END -->
 
 - AI calls go through `@lovable.dev/ai-gateway` inside `createServerFn` handlers (`src/lib/*.functions.ts`); the client sends live telemetry as context so the server stays stateless.
+- Keep Copilot safety instructions and conservative fail-closed output screening in a shared pure module so evidence and treatment safeguards can be regression-tested without inference.

@@ -125,7 +125,7 @@ describe("Crew readiness streak & adherence", () => {
 describe("Diagnostic scan input", () => {
   it("ships the ocular ultrasound and dermal rash samples with copilot prompts", () => {
     expect(SAMPLE_SCANS.map((s) => s.id)).toEqual(["ocular", "rash"]);
-    expect(SAMPLE_SCANS[0]!.prompt).toMatch(/5\.4 mm/);
+    expect(SAMPLE_SCANS[0]?.prompt).not.toMatch(/5\.4 mm/);
     expect(SAMPLE_SCANS[1]!.prompt).toMatch(/shingles/i);
   });
   it("a filed scan raises a copilot follow-up risk mapped to the right system", () => {

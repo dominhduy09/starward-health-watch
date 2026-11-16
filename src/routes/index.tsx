@@ -19,9 +19,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "ASTRA-MED — Deep Space Crew Health Telemetry" },
-      { name: "description", content: "Real-time astronaut biometric monitoring, clickable body-map self-exams, NASA HRP hazard triage and an AI space-medicine copilot for deep space missions." },
+      { name: "description", content: "Simulation-only astronaut health dashboard with fictional telemetry, educational body-map exams and an unvalidated AI copilot. Not for clinical use." },
       { property: "og:title", content: "ASTRA-MED — Deep Space Crew Health Telemetry" },
-      { property: "og:description", content: "Real-time astronaut biometric monitoring, clickable body-map self-exams, NASA HRP hazard triage and an AI space-medicine copilot for deep space missions." },
+      { property: "og:description", content: "Simulation-only astronaut health dashboard with fictional telemetry, educational body-map exams and an unvalidated AI copilot. Not for clinical use." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -89,9 +89,9 @@ function Dashboard() {
           env={env} onEnv={setEnv} live={live} onLive={setLive} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 min-w-0 space-y-4">
-            <div className="flex items-baseline justify-between px-1">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 px-1">
               <h2 className="text-sm font-semibold">{crew.name} <span className="text-muted-foreground font-normal">· {crew.role}</span></h2>
-              <span className="readout text-[10px] text-muted-foreground">{live ? "STREAMING · 0.5 Hz" : "PAUSED"}</span>
+              <span className="readout text-[10px] text-caution">SIMULATION ONLY · {live ? "STREAMING · 0.5 Hz" : "PAUSED"}</span>
             </div>
             <VitalCards v={v} crew={crew} data={data} score={t.score} focus={focus} />
             <BodyMap v={v} crew={crew} risks={t.risks} selected={focus} onSelect={setFocus} onAsk={(prompt) => setPending({ prompt })} />
