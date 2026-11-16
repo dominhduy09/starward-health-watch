@@ -9,6 +9,10 @@ import { CopilotChat, type PendingAsk } from "@/components/astra/CopilotChat";
 import { BodyMap } from "@/components/astra/BodyMap";
 import { StreakWidget } from "@/components/astra/StreakWidget";
 import { DemoVideo } from "@/components/astra/DemoVideo";
+import { CommsQueue } from "@/components/astra/CommsQueue";
+import { CrewOverview } from "@/components/astra/CrewOverview";
+import { CrewReport } from "@/components/astra/CrewReport";
+import { useTour } from "@/components/astra/useTour";
 import { type Point, CREW, SCENARIOS, jitter, rng, series, vitalsFor, type CrewId, type ScenarioId } from "@/lib/telemetry";
 import { environmentFor, type EnvironmentId } from "@/lib/environment";
 import { triage, type SymptomLog } from "@/lib/triage";
@@ -43,6 +47,7 @@ function Dashboard() {
   const [streak, setStreak] = useState<StreakState>(seedStreak);
   const [hydrated, setHydrated] = useState(false);
 
+  const tour = useTour({ setScenario, setEnv, setCrewId, setFocus, setPending });
   const crew = CREW.find((c) => c.id === crewId)!;
   const environment = environmentFor(env);
   useEffect(() => { setDone(new Set()); }, [crewId, scenario]);
@@ -84,9 +89,13 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen space-bg">
-      <main className="mx-auto max-w-[1600px] p-3 md:p-6 space-y-4">
+      <main className="print:hidden mx-auto max-w-[1600px] p-3 md:p-6 space-y-4">
         <Header crew={crewId} onCrew={setCrewId} scenario={scenario} onScenario={setScenario}
-          env={env} onEnv={setEnv} live={live} onLive={setLive} />
+          env={env} onEnv={setEnv} live={live} onLive={setLive}
+          touring={tour.active} onTour={tour.toggle} onReport={() => window.print()} />
+        {tour.caption && (
+          <div role="status" className="glass border-primary/60 p-4 text-sm"><span className="readout mr-2 text-primary">TOUR {tour.step}/5</span>{tour.caption}</div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 min-w-0 space-y-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2 px-1">
@@ -98,6 +107,7 @@ function Dashboard() {
             <TelemetryChart data={data} range={range} onRange={setRange} />
           </div>
           <div className="min-w-0 space-y-4">
+            <CrewOverview scenario={scenario} env={env} selected={crewId} onSelect={setCrewId} />
             <StreakWidget a={a} streak={streak.streak} best={streak.best} />
             <SymptomDrawer history={logs[crewId]} onSubmit={(l) => setLogs((p) => ({ ...p, [crewId]: [l, ...p[crewId]] }))}
               onAsk={(prompt, scan) => setPending({ prompt, scan })} />
@@ -115,10 +125,14 @@ function Dashboard() {
                 risks: t.risks.map((r) => r.title),
               }} />
             </TriagePanel>
+            <CommsQueue comms={environment.comms} envName={environment.label}
+              summary={`${crew.name}: ${t.level}, readiness ${t.score}${t.risks.length ? ` · ${t.risks.map((r) => r.title).join(", ")}` : ""}`} />
           </div>
         </div>
         <DemoVideo />
       </main>
+      <CrewReport crew={crew} v={v} level={t.level} score={t.score} risks={t.risks} actions={t.actions} done={done}
+        hazards={t.hazards} logs={logs[crewId]} scenario={SCENARIOS.find((s) => s.id === scenario)!.label} envName={environment.label} />
     </div>
   );
 }

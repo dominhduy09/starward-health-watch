@@ -11,7 +11,7 @@ import type { ScanAttachment } from "@/lib/scans";
 import { cn } from "@/lib/utils";
 
 type Msg = { role: "user" | "assistant"; content: string };
-export interface PendingAsk { prompt: string; scan?: ScanAttachment | null; }
+export interface PendingAsk { prompt: string; scan?: ScanAttachment | null; demoReply?: string; }
 
 function TaskBox() {
   const [on, setOn] = useState(false);
@@ -59,7 +59,8 @@ export function CopilotChat({ context, pending, onPendingDone }: { context: Copi
   };
 
   useEffect(() => {
-    if (pending) { void send(pending.prompt, pending.scan ?? null); onPendingDone(); }
+    if (pending?.demoReply) { setMsgs((m) => [...m, { role: "user", content: pending.prompt }, { role: "assistant", content: pending.demoReply! }]); onPendingDone(); }
+    else if (pending) { void send(pending.prompt, pending.scan ?? null); onPendingDone(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending]);
 

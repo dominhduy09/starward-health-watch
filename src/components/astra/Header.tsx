@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Activity, Radio, Satellite, Orbit } from "lucide-react";
+import { Activity, Radio, Satellite, Orbit, Play, Square, BookOpen, FileText } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { CREW, SCENARIOS, type CrewId, type ScenarioId } from "@/lib/telemetry";
@@ -17,9 +19,10 @@ interface Props {
   scenario: ScenarioId; onScenario: (s: ScenarioId) => void;
   env: EnvironmentId; onEnv: (e: EnvironmentId) => void;
   live: boolean; onLive: (b: boolean) => void;
+  touring: boolean; onTour: () => void; onReport: () => void;
 }
 
-export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, onLive }: Props) {
+export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, onLive, touring, onTour, onReport }: Props) {
   const met = useMet();
   const e = environmentFor(env);
   return (
@@ -48,6 +51,14 @@ export function Header({ crew, onCrew, scenario, onScenario, env, onEnv, live, o
             <SelectContent>{CREW.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" onClick={onTour} variant={touring ? "outline" : "default"} className="gap-2">
+          {touring ? <><Square className="size-4" />Stop tour</> : <><Play className="size-4" />Start 30-sec Judge Tour</>}
+        </Button>
+        <Button size="sm" variant="outline" className="gap-2" onClick={onReport}><FileText className="size-4" />Export Crew Report</Button>
+        <Button size="sm" variant="outline" className="gap-2" asChild><Link to="/evidence"><BookOpen className="size-4" />Data & Evidence</Link></Button>
       </div>
 
       <div className="space-y-2">
