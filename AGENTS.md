@@ -31,3 +31,6 @@ use the editor.
 
 - AI calls go through `@lovable.dev/ai-gateway` inside `createServerFn` handlers (`src/lib/*.functions.ts`); the client sends live telemetry as context so the server stays stateless.
 - Keep Copilot safety instructions and conservative fail-closed output screening in a shared pure module so evidence and treatment safeguards can be regression-tested without inference.
+- Real health mode lives under `src/routes/_authenticated/` with data in Lovable Cloud; health visibility across users is decided only by the `can_view_health` database function (helper + member opted in), so never widen reads in app code.
+- Wellness thresholds, typo bounds, camera-pulse and CSV mapping stay in pure modules (`src/lib/ranges.ts`, `ppg.ts`, `csv-import.ts`) so they are unit-tested without a browser.
+- The astronaut simulation stays at `/demo`, isolated from real user data.

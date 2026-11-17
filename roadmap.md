@@ -1,5 +1,7 @@
-# Safety update
-- [x] Label simulation-only telemetry, scans and readiness streaks.
-- [x] Constrain Copilot evidence and treatment recommendations.
-- [x] Remove unverified KI and gate checklist treatments.
-- [x] Run safety tests and verify the dashboard and Copilot.
+# Everyday health tracker
+- [x] Accounts, saved readings and check-ins
+- [x] Manual entry with typo checks, camera pulse, CSV import
+- [x] My health page, urgent warning, streak, health helper
+- [x] Teams with invite links, opt-in sharing and helper board
+- [x] Consent screen, data download, account deletion
+- [x] Space demo moved to /demo
