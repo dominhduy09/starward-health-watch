@@ -20,7 +20,7 @@ function Evidence() {
   return (
     <div className="min-h-screen space-bg">
       <main className="mx-auto max-w-4xl p-4 md:p-8 space-y-4">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-primary"><ArrowLeft className="size-4" />Back to dashboard</Link>
+        <Link to="/demo" className="inline-flex items-center gap-2 text-sm text-primary"><ArrowLeft className="size-4" />Back to space demo</Link>
         <div className="glass p-5 space-y-2">
           <h1 className="flex items-center gap-2 text-xl font-semibold"><BookOpen className="size-5 text-primary" />Data & Evidence</h1>
           <p className="text-sm text-muted-foreground">Where ASTRA-MED's safety ranges come from. All crew data in the app is simulated; thresholds are illustrative and need flight-surgeon validation before any real use.</p>
